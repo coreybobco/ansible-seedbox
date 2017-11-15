@@ -1,0 +1,10 @@
+- name: restart nginx
+  become: true
+  service:
+    name: nginx
+    state: restarted
+- name: restart lightdm
+  become: true
+  service:
+    name: lightdm
+    state: restarted

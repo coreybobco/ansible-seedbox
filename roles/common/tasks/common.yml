@@ -1,0 +1,34 @@
+---
+- shell: curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+  args:
+    creates: /etc/apt/sources.list.d/nodesource.list
+- apt_key:
+    url: https://linux-packages.resilio.com/resilio-sync/key.asc
+  become: true
+- apt_repository:
+    repo: deb http://linux-packages.resilio.com/resilio-sync/deb resilio-sync non-free
+  become: true
+- name: install xfce desktop, firefox, screen, git, google-drive, etc.
+  become: true
+  apt:
+    name: "{{ item }}"
+    update_cache: true
+  with_items:
+    - nginx
+    - firefox
+    - xorg
+    - lightdm
+    - xubuntu-core
+    - gtk2-engines-pixbuf
+    - screen
+    - git
+    - curl
+    - nodejs
+    - resilio-sync
+- name: remove default nginx configuration
+  become: true
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify:
+  - restart nginx

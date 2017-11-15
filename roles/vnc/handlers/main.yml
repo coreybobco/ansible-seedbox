@@ -1,0 +1,12 @@
+- name: restart lightdm
+  service:
+    state: restarted
+    name: lightdm
+  become: true
+- name: restart x11vnc
+  systemd:
+    daemon-reload: yes
+    name: x11vnc
+    state: restarted
+    enabled: yes
+  become: true

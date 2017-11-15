@@ -1,0 +1,23 @@
+- name: install packages with apt
+  become: true
+  apt:
+    name: "{{ item }}"
+    update_cache: true
+  with_items:
+    - x11vnc
+    - xvfb
+- name: set x11vnc password
+  become: true
+  command: "x11vnc -storepasswd {{ vnc_password }} /etc/X11/x11vnc.passwd"
+  args:
+    creates: /etc/X11/x11vnc.passwd
+  notify:
+    - restart lightdm
+    - restart x11vnc
+- name: add x11vnc service daemon
+  become: true
+  copy:
+    src: x11vnc.service
+    dest: /etc/systemd/system/x11vnc.service
+  notify:
+    - restart x11vnc

@@ -1,0 +1,26 @@
+# Forward PHP requests to php-fpm
+upstream php-handler {
+  server unix:/run/php/php7.1-fpm.sock;
+}
+
+server {
+  listen 80;
+
+  server_name north.setspy.fm;
+
+  location / {
+
+    alias /home/{{ created_user }}/rutorrent/;
+    index index.php index.html;
+
+    auth_basic "Restricted";
+    auth_basic_user_file /home/{{ created_user }}/rutorrent/.htpasswd;
+
+    location ~ .php$ {
+      fastcgi_split_path_info ^(.+\.php)(/.+)$;
+      fastcgi_pass php-handler;
+      fastcgi_index index.php;
+      include fastcgi.conf;
+    }
+  }
+}

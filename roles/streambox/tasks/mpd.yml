@@ -1,0 +1,29 @@
+---
+- apt:
+    name: "{{ item }}"
+  with_items:
+    - mpd
+    - icecast2
+  become: true
+- template:
+    src: icecast.xml.j2
+    dest: /etc/icecast2/icecast.xml
+    mode: 0777
+  become: true
+- name: restart icecast
+  service:
+    name: icecast2
+    state: restarted
+  become: true
+- template:
+    src: mpd.conf.j2
+    dest: /etc/mpd.conf
+    mode: 0777
+  become: true
+- name: restart mpd
+  systemd:
+    daemon-reload: yes
+    enabled: yes
+    name: mpd
+    state: restarted
+  become: true

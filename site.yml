@@ -1,0 +1,7 @@
+- hosts: secured
+  roles:
+    # - common
+    # - vnc
+    # - seedbox
+    # - streambox
+    - azuracast

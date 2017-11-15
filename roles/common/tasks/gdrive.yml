@@ -1,0 +1,33 @@
+---
+  - file:
+      path: ~/src/
+      state: directory
+  - git:
+      repo: https://github.com/vitalif/grive2.git
+      dest: ~/src/grive2/
+      update: no
+  - become: true
+    apt:
+      name: "{{ item }}"
+    with_items:
+      - git
+      - cmake
+      - build-essential
+      - libgcrypt11-dev
+      - libyajl-dev
+      - libboost-all-dev
+      - libcurl4-openssl-dev
+      - libexpat1-dev
+      - libcppunit-dev
+      - binutils-dev
+      - pkg-config
+      - zlib1g-dev
+      - dpkg-dev
+      - debhelper
+      - libstdc++-6-dev
+  - shell: "dpkg-buildpackage -j4"
+    args:
+      chdir: "~/src/grive2/"
+      creates: "~/src/grive_0.5.1+git20160731_amd64.deb"
+  - apt:
+    deb: "/home/{{ created_user }}/src/grive_0.5.1+git20160731_amd64.deb"

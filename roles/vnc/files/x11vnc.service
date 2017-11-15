@@ -1,0 +1,8 @@
+[Unit]
+Description=Start x11vnc at startup.
+After=multi-user.target
+[Service]
+Type=simple
+ExecStart=/usr/bin/x11vnc -xkb -repeat -usepw -auth /var/run/lightdm/root/:0 -rfbauth /etc/X11/x11vnc.passwd -rfbport 5900 -forever -loop
+[Install]
+WantedBy=multi-user.target

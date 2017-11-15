@@ -1,0 +1,15 @@
+common:
+  hosts:
+    secured:
+      ansible_host: "{{ host_ip }}"
+      ansible_user: "{{created_user}}"
+vnc:
+  hosts:
+    secured:
+      ansible_host: "{{ host_ip }}"
+      ansible_user: "{{created_user}}"
+seedbox:
+  hosts:
+    secured:
+      ansible_host: "{{ host_ip }}"
+      ansible_user: "{{created_user}}"

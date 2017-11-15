@@ -1,0 +1,5 @@
+ssh:
+  hosts:
+    unsecured:
+      ansible_host: "{{ host_ip }}"
+      ansible_user: root

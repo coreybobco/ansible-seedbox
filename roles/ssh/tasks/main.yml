@@ -1,0 +1,34 @@
+- name: Make sure we have a 'wheel' group
+  group:
+    name: wheel
+    state: present
+- name: Allow 'wheel' group to have passwordless sudo
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: '^%wheel'
+    line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+- name: Add nonroot user to wheel group for sudo access
+  user:
+    name: "{{ created_user }}"
+    groups: wheel
+    append: yes
+    state: present
+- name: Setup | set user password
+  shell: usermod -p $(echo '{{ created_password }}' | openssl passwd -1 -stdin) {{ created_user }}
+- name: allow nonroot ssh login
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    line: 'AllowUsers {{ created_user }}'
+    insertafter: EOF
+  notify:
+  - restart sshd
+- name: disable root login
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    regexp: 'PermitRootLogin yes'
+    line: 'PermitRootLogin no'
+  notify:
+  - restart sshd

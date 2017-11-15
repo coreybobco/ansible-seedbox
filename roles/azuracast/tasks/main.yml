@@ -1,0 +1,39 @@
+---
+- name: Make sure we have a 'docker' group
+  group:
+    name: docker
+    state: present
+  become: true
+- name: Add created user to docker group
+  user:
+    name: "{{ created_user }}"
+    groups: docker
+    append: yes
+    state: present
+  become: true
+- name: git clone into Azuracast repo
+  git:
+    repo: https://github.com/AzuraCast/AzuraCast.git
+    dest: ~/AzuraCast/
+    force: yes
+- replace:
+    path: ~/AzuraCast/docker-compose.yml
+    regexp: "- '80:80'"
+    replace: "- '7900:80'"
+- template:
+    src: azuracast-nginx
+    dest: "/etc/nginx/sites-enabled/{{azuracast_domain}}"
+  become: true
+- name: setup Azuracast directory in var
+  file: 
+    path: /var/azuracast/stations/
+    state: directory
+  become: true
+- name: setup Azuracast container
+  shell: "/home/{{ created_user }}/AzuraCast/docker-install.sh >> install_log.txt"
+  args:
+    chdir: "/home/{{ created_user }}/AzuraCast/"
+  become: true
+- shell: docker-compose up -d
+  args:
+    chdir: "/home/{{ created_user }}/AzuraCast/"

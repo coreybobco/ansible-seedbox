@@ -1,0 +1,14 @@
+---
+- name: download soulseekqt
+  get_url:
+    url: https://www.dropbox.com/s/wborsit53rlj7bz/SoulseekQt-$_pkgver-64bit.AppImage?dl=1
+    dest: /opt/soulseekqt.appimage
+    mode: a+rwx
+  become: true
+- name: symlink /usr/bin/soulseekqt to appimage
+  file:
+    path: /usr/bin/soulseekqt
+    src: /opt/soulseekqt.appimage
+    mode: a+rwx
+    state: link
+  become: true

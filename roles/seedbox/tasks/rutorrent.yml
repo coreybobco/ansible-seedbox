@@ -1,0 +1,76 @@
+---
+- name: install rtorrent, rutorrent prereqs
+  become: true
+  apt:
+    name: "{{ item }}"
+    update_cache: true
+  with_items:
+    - rtorrent
+    - xmlrpc-api-utils
+    - apache2-utils
+    - php
+    - python-passlib
+    - php7.1-mbstring
+    - php7.1-fpm
+    - ffmpeg
+    - unzip
+    - unrar
+    - mediainfo
+- name: copy rtorrent config file
+  template:
+    src: .rtorrent.rc.j2
+    dest: ~/.rtorrent.rc
+- name: Make sure we have Downloads directory
+  file:
+    path: ~/Downloads/.session
+    state: directory
+- name: add rtorrent service daemon
+  become: true
+  template:
+    src: rtorrent.service.j2
+    dest: /etc/systemd/system/rtorrent.service
+- become: true
+  systemd:
+    name: rtorrent
+    enabled: yes
+    state: started
+- name: checkout rutorrent
+  git:
+    repo: https://github.com/Novik/ruTorrent.git
+    dest: ~/rutorrent
+    force: yes
+  notify:
+    - restart nginx
+- name: chmod 755 rutorrent
+  file:
+    path: ~/rutorrent
+    state: directory
+    mode: 0755
+  notify:
+    - restart nginx
+- name: copy nginx conf files for rutorrent
+  become: true
+  template:
+    src: nginx-rutorrent.j2
+    dest: /etc/nginx/sites-enabled/rutorrent
+  notify:
+    - restart nginx
+- name: copy rutorrent config.php file
+  copy:
+    src: rutorrent-config.php
+    dest: ~/rutorrent/conf/config.php
+    mode: 0775
+- name: add FlatUI themes
+  become: true
+  shell: sh -c "$(curl -fsSL https://raw.githubusercontent.com/exetico/FlatUI/master/install.sh)"
+  args:
+    chdir: "/home/{{  created_user  }}/rutorrent/plugins/theme/themes"
+    creates: "/home/{{  created_user  }}/rutorrent/plugins/theme/themes/FlatUI_Dark/stable.css"
+- name: set password for rutorrent access
+  become: true
+  htpasswd:
+    path: "/home/{{  created_user  }}/rutorrent/.htpasswd"
+    name: "{{ created_user }}"
+    password: "{{ rutorrent_password }}"
+  notify:
+    - restart nginx
